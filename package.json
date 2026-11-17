@@ -1,0 +1,12 @@
+{
+  "name": "pokemon-turn-rpg",
+  "version": "1.0.0",
+  "description": "Jogo de Pokémon por turno no navegador com sistema de captura, roubo de golpes, evolução e PC storage.",
+  "scripts": {
+    "start": "npx serve -l 3000 ."
+  },
+  "keywords": ["pokemon", "rpg", "turn-based", "game"],
+  "author": "Antigravity",
+  "license": "MIT"
+}
+

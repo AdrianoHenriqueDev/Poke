@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Turn RPG - Batalha & Captura</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- BARRA SUPERIOR / CABEÇALHO -->
+        <header id="game-header">
+            <div class="header-brand">
+                <span class="pokeball-icon"></span>
+                <h1>POKÉMON TURN RPG</h1>
+            </div>
+            <div class="header-badges">
+                <div class="stat-pill"><span class="pill-label">ROTA:</span> <strong id="header-stage">Estágio 1</strong></div>
+                <div class="stat-pill"><span class="pill-label">VITÓRIAS:</span> <strong id="header-wins">0</strong></div>
+                <div class="stat-pill"><span class="pill-label">TIME:</span> <strong id="header-team-count">1/6</strong></div>
+                <div class="stat-pill"><span class="pill-label">NO PC:</span> <strong id="header-pc-count">0</strong></div>
+                <div class="stat-pill"><span class="pill-label">CENTRO:</span> <strong id="header-center-uses">0/3</strong></div>
+            </div>
+            <nav class="header-nav">
+                <button id="btn-open-bag" class="nav-btn btn-bag" title="Abrir mochila de itens">🎒 Mochila</button>
+                <button id="btn-open-team" class="nav-btn" title="Ver e gerenciar seu time de 6 Pokémons">👥 Time</button>
+                <button id="btn-open-pc" class="nav-btn" title="Acessar o PC para trocar ou retirar Pokémons guardados">💻 PC Box</button>
+                <button id="btn-heal-center" class="nav-btn btn-heal" title="Restaurar HP e PP de todo o time (Máx 3 usos)">❤️ Centro (<span id="center-btn-uses">0/3</span>)</button>
+                <button id="btn-toggle-audio" class="nav-btn btn-audio">🔊 Som</button>
+                <button id="btn-reset-game" class="nav-btn btn-danger" title="Reiniciar do zero">🔄 Novo Jogo</button>
+            </nav>
+        </header>
+
+        <!-- ARENA DE BATALHA -->
+        <main id="battle-arena">
+            <div id="enemy-zone" class="pokemon-zone">
+                <div class="pokemon-hud hud-enemy">
+                    <div class="hud-top">
+                        <span id="enemy-pokemon-name" class="pkmn-name">Inimigo</span>
+                        <span id="enemy-pokemon-level" class="pkmn-lvl">Lv.5</span>
+                    </div>
+                    <div id="enemy-pokemon-types" class="pkmn-types"></div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar-label">HP</div>
+                        <div class="hp-bar-track"><div id="enemy-hp-bar" class="hp-fill hp-high" style="width: 100%;"></div></div>
+                    </div>
+                    <div class="hp-numeric"><span id="enemy-hp-text">--/--</span></div>
+                </div>
+                <div class="pokemon-stage stage-enemy">
+                    <div class="stage-shadow"></div>
+                    <img id="enemy-pokemon-sprite" class="pokemon-sprite" alt="Pokémon Inimigo" src="" />
+                </div>
+            </div>
+            <div id="player-zone" class="pokemon-zone">
+                <div class="pokemon-stage stage-player">
+                    <div class="stage-shadow"></div>
+                    <img id="player-pokemon-sprite" class="pokemon-sprite sprite-back" alt="Seu Pokémon" src="" />
+                </div>
+                <div class="pokemon-hud hud-player">
+                    <div class="hud-top">
+                        <span id="player-pokemon-name" class="pkmn-name">Jogador</span>
+                        <span id="player-pokemon-level" class="pkmn-lvl">Lv.5</span>
+                    </div>
+                    <div id="player-pokemon-types" class="pkmn-types"></div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar-label">HP</div>
+                        <div class="hp-bar-track"><div id="player-hp-bar" class="hp-fill hp-high" style="width: 100%;"></div></div>
+                    </div>
+                    <div class="hp-numeric"><span id="player-hp-text">--/--</span></div>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar-label">EXP</div>
+                        <div class="xp-bar-track"><div id="player-xp-bar" class="xp-fill" style="width: 0%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- CAIXA DE DIÁLOGO E PAINEL DE CONTROLE -->
+        <footer id="battle-controls-container">
+            <div id="dialogue-box"><p id="battle-dialogue-text">Aguardando batalha...</p></div>
+            <div id="battle-commands" class="controls-pad">
+                <button id="btn-action-fight" class="btn-command btn-fight"><span class="cmd-icon">⚔️</span><span class="cmd-label">LUTAR</span></button>
+                <button id="btn-action-switch" class="btn-command btn-switch"><span class="cmd-icon">🔄</span><span class="cmd-label">TROCAR</span></button>
+                <button id="btn-action-item" class="btn-command btn-item"><span class="cmd-icon">🎒</span><span class="cmd-label">ITEM</span></button>
+                <button id="btn-action-run" class="btn-command btn-run"><span class="cmd-icon">🏃</span><span class="cmd-label">FUGIR</span></button>
+            </div>
+            <div id="battle-moves" class="controls-pad hidden">
+                <div id="moves-container" class="moves-grid"></div>
+                <button id="btn-moves-back" class="btn-command btn-back"><span>⬅ VOLTAR</span></button>
+            </div>
+        </footer>
+
+        <!-- MODAIS DO SISTEMA -->
+        <div id="modal-post-battle" class="modal-overlay">
+            <div class="modal-card modal-reward">
+                <h2 class="modal-title">🏆 VITÓRIA! POKÉMON DERROTADO!</h2>
+                <p class="modal-subtitle">O que você deseja fazer com o Pokémon derrotado?</p>
+                <div class="reward-enemy-preview">
+                    <img id="reward-enemy-sprite" class="reward-sprite" src="" alt="Pokémon Derrotado">
+                    <div class="reward-enemy-details">
+                        <h3 id="reward-enemy-name">Pokémon</h3>
+                        <span id="reward-enemy-level">Nível --</span>
+                        <div id="reward-enemy-types" class="reward-types"></div>
+                    </div>
+                </div>
+                <div id="reward-main-choices" class="reward-choices-grid">
+                    <div class="choice-card" id="btn-reward-capture">
+                        <div class="choice-icon">🔴</div>
+                        <h3>CAPTURAR POKÉMON</h3>
+                        <p>Adicione este Pokémon à sua equipe de batalha para lutar ao seu lado!</p>
+                        <div id="reward-capture-hint" class="reward-hint"></div>
+                        <button class="btn-choice-action">Escolher Capturar</button>
+                    </div>
+                    <div class="choice-card" id="btn-reward-learn-move">
+                        <div class="choice-icon">⚡</div>
+                        <h3>APRENDER UM ATAQUE</h3>
+                        <p>Escolha um dos golpes deste Pokémon para ensinar a um membro do seu time!</p>
+                        <div class="reward-hint hint-move">Fortaleça seus Pokémons com novos tipos e ataques.</div>
+                        <button class="btn-choice-action">Escolher Ataque</button>
+                    </div>
+                </div>
+                <div id="reward-move-selection" class="hidden">
+                    <h3 style="color: #ffd02c; text-align: center; margin-bottom: 12px;">Escolha um golpe para ensinar:</h3>
+                    <div id="reward-enemy-moves-list" class="reward-moves-list"></div>
+                    <button id="btn-reward-back-to-choices" class="modal-btn-cancel" style="margin-top: 14px;">⬅ Voltar às Escolhas</button>
+                </div>
+                <div id="reward-team-selection" class="hidden">
+                    <h3 style="color: #ffd02c; text-align: center; margin-bottom: 12px;">Quem deve aprender <span id="reward-learning-move-name" style="color: #4df0a0;"></span>?</h3>
+                    <div id="reward-target-team-list" class="team-targets-list"></div>
+                    <button id="btn-reward-back-to-moves" class="modal-btn-cancel" style="margin-top: 14px;">⬅ Voltar aos Golpes</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-replace-move" class="modal-overlay">
+            <div class="modal-card">
+                <h2 id="replace-move-title" class="modal-title">Substituir Golpe</h2>
+                <p id="replace-move-desc" class="modal-subtitle">Escolha qual golpe antigo será esquecido:</p>
+                <div id="current-moves-to-replace" class="replace-moves-list"></div>
+                <button id="btn-cancel-replace" class="modal-btn-cancel">Cancelar</button>
+            </div>
+        </div>
+
+        <div id="modal-team" class="modal-overlay">
+            <div class="modal-card modal-wide">
+                <div class="modal-header">
+                    <h2>👥 SEU TIME POKÉMON (Até 6)</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div id="team-members-list" class="team-grid"></div>
+            </div>
+        </div>
+
+        <div id="modal-pc" class="modal-overlay">
+            <div class="modal-card modal-wide">
+                <div class="modal-header">
+                    <h2>💻 SISTEMA DE PC DO BILL</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div id="pc-stored-count" class="pc-count-badge">Armazenados: 0 Pokémons</div>
+                <div class="pc-sections-container">
+                    <div class="pc-section">
+                        <h3>Seu Time Ativo (Máx 6)</h3>
+                        <div id="pc-team-grid" class="pc-team-slots"></div>
+                    </div>
+                    <div class="pc-section">
+                        <h3>Caixa de Armazenamento do PC</h3>
+                        <div id="pc-box-grid" class="pc-box-slots"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-details" class="modal-overlay">
+            <div class="modal-card modal-details-card">
+                <div class="modal-header">
+                    <h2>FICHA DO POKÉMON</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div class="details-body">
+                    <div class="details-left">
+                        <img id="detail-sprite" src="" alt="Pokémon">
+                        <h3 id="detail-name">Nome</h3>
+                        <span id="detail-level">Lv. 0</span>
+                        <div id="detail-types"></div>
+                        <div class="detail-evo-box">
+                            <strong>Evolução:</strong>
+                            <p id="detail-evolution">--</p>
+                        </div>
+                    </div>
+                    <div class="details-right">
+                        <h4>Atributos (Stats)</h4>
+                        <div class="stats-table">
+                            <div class="stat-row"><span>HP:</span> <strong id="stat-hp">--</strong></div>
+                            <div class="stat-row"><span>Ataque:</span> <strong id="stat-atk">--</strong></div>
+                            <div class="stat-row"><span>Defesa:</span> <strong id="stat-def">--</strong></div>
+                            <div class="stat-row"><span>Atq. Especial:</span> <strong id="stat-spatk">--</strong></div>
+                            <div class="stat-row"><span>Def. Especial:</span> <strong id="stat-spdef">--</strong></div>
+                            <div class="stat-row"><span>Velocidade:</span> <strong id="stat-spd">--</strong></div>
+                            <div class="stat-row"><span>Progresso EXP:</span> <strong id="stat-xp">--</strong></div>
+                        </div>
+                        <h4>Golpes Conhecidos</h4>
+                        <div id="detail-moves-list" class="detail-moves"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-evolution" class="modal-overlay modal-evolution-bg">
+            <div class="evolution-container">
+                <div class="evolution-pedestal"></div>
+                <div class="evolution-glow"></div>
+                <img id="evolution-sprite" class="evolution-sprite-anim" src="" alt="Evoluindo...">
+                <h2 id="evolution-text" class="evolution-dialogue">O quê?! Pokémon está evoluindo!</h2>
+            </div>
+        </div>
+
+        <div id="modal-starter" class="modal-overlay">
+            <div class="modal-card modal-starter-card">
+                <h2 class="modal-title">BEM-VINDO AO MUNDO POKÉMON!</h2>
+                <p class="modal-subtitle">Escolha seu primeiro Pokémon para começar sua jornada pelas rotas:</p>
+                <div id="starters-grid" class="starters-selection-grid"></div>
+            </div>
+        </div>
+
+        <!-- MODAL DE MOCHILA DE ITENS -->
+        <div id="modal-item-bag" class="modal-overlay">
+            <div class="modal-card modal-items">
+                <div class="modal-header">
+                    <h2>🎒 MOCHILA DE ITENS</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <p class="modal-subtitle">Selecione um item para utilizar:</p>
+                <div class="items-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS DO JOGO -->
+    <script src="js/data/types.js"></script>
+    <script src="js/data/moves.js"></script>
+    <script src="js/data/pokemon.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

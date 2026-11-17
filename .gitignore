@@ -1,0 +1,12 @@
+# Node / Dependências
+node_modules/
+package-lock.json
+
+# Sistema e editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs e temporários
+*.log

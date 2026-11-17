@@ -202,6 +202,27 @@ class RetroAudioEngine {
         }, 1300);
     }
 
+    // Som de balanço da Pokébola
+    playBallWobble() {
+        if (this.muted) return;
+        this.playTone(480, 0.08, 'triangle', 0.18);
+    }
+
+    // Som da Pokébola abrindo / Pokémon escapando
+    playBallBreak() {
+        if (this.muted) return;
+        this.playTone(320, 0.12, 'sawtooth', 0.2);
+    }
+
+    // Som de compra no Shop / moeda
+    playCoin() {
+        if (this.muted) return;
+        this.playTone(987.77, 0.07, 'square', 0.16);
+        setTimeout(() => {
+            this.playTone(1318.51, 0.22, 'square', 0.16);
+        }, 70);
+    }
+
     // Som de Evolução
     playEvolutionFanfare() {
         if (this.muted) return;

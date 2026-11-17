@@ -1,5 +1,17 @@
 // Aplicação Principal - Controle de Estado, Fluxo de Batalha, PC, Itens e Time
 
+// Catálogo Oficial de Itens do Poké-Mart
+const SHOP_CATALOG = [
+    { key: 'pokeball', name: 'Poké Ball', icon: '🔴', price: 200, desc: 'Bola padrão para captura de selvagens.' },
+    { key: 'great_ball', name: 'Great Ball', icon: '🔵', price: 600, desc: '1.5x mais chance de capturar.' },
+    { key: 'ultra_ball', name: 'Ultra Ball', icon: '🟡', price: 1200, desc: '2.0x mais chance de capturar.' },
+    { key: 'potion', name: 'Potion', icon: '🧪', price: 250, desc: 'Restaura 20 HP do Pokémon ativo.' },
+    { key: 'super_potion', name: 'Super Potion', icon: '🍶', price: 600, desc: 'Restaura 50 HP do Pokémon ativo.' },
+    { key: 'hyper_potion', name: 'Hyper Potion', icon: '🧴', price: 1200, desc: 'Restaura 120 HP do Pokémon ativo.' },
+    { key: 'revive', name: 'Revive', icon: '💎', price: 1400, desc: 'Revive um Pokémon desmaiado com 50% HP.' },
+    { key: 'rare_candy', name: 'Rare Candy', icon: '🍬', price: 2000, desc: 'Sobe 1 Nível imediato e ativa evolução!' }
+];
+
 class GameApp {
     constructor() {
         this.playerTeam = [];
@@ -10,6 +22,7 @@ class GameApp {
         this.battlesWon = 0;
         this.isBattleActive = false;
         this.inTurn = false;
+        this.money = 500; // Saldo inicial em Poké-Dólares
 
         // Mochila de itens inicial (o jogador já começa com alguns para experimentar)
         this.itemBag = {
@@ -17,6 +30,7 @@ class GameApp {
             super_potion: 1,
             hyper_potion: 0,
             revive: 1,
+            rare_candy: 1,
             pokeball: 5,
             great_ball: 2,
             ultra_ball: 0
@@ -93,6 +107,15 @@ class GameApp {
             btnBag.addEventListener('click', () => {
                 if (typeof audio !== 'undefined') audio.playClick();
                 ui.renderItemBag(this.itemBag);
+            });
+        }
+
+        // Loja / Poké-Mart
+        const btnShop = document.getElementById('btn-open-shop');
+        if (btnShop) {
+            btnShop.addEventListener('click', () => {
+                if (typeof audio !== 'undefined') audio.playClick();
+                this.openShopModal();
             });
         }
 
@@ -199,6 +222,7 @@ class GameApp {
         const winsEl = document.getElementById('header-wins');
         const teamCountEl = document.getElementById('header-team-count');
         const pcCountEl = document.getElementById('header-pc-count');
+        const moneyEl = document.getElementById('header-money');
         const centerPill = document.getElementById('header-center-uses');
         const centerBtnSpan = document.getElementById('center-btn-uses');
 
@@ -206,6 +230,7 @@ class GameApp {
         if (winsEl) winsEl.textContent = `${this.battlesWon}`;
         if (teamCountEl) teamCountEl.textContent = `${this.playerTeam.length}/6`;
         if (pcCountEl) pcCountEl.textContent = `${this.playerPC.length}`;
+        if (moneyEl) moneyEl.textContent = `₽ ${this.money}`;
 
         const remainingUses = Math.max(0, this.maxCenterUses - this.centerUses);
         const centerText = `${this.centerUses}/${this.maxCenterUses}`;
@@ -420,6 +445,12 @@ class GameApp {
                 }
             }
 
+            // Recompensa em Poké-Dólares pela vitória
+            const rewardMoney = Math.floor(100 + (faintedPkmn.level * 25) + (this.stage * 15));
+            this.money += rewardMoney;
+            this.updateHeaderStats();
+            await ui.showMessage(`Vitória! Você recebeu ₽ ${rewardMoney}!`);
+
             // Drop de item aleatório pós-vitória
             this.handleItemDrop();
 
@@ -430,16 +461,17 @@ class GameApp {
         }
     }
 
-    // Drop aleatório de itens e Poké Balls após vitória
+    // Drop aleatório de itens, Rare Candies e Poké Balls após vitória
     handleItemDrop() {
         if (Math.random() < 0.75) {
             const itemPool = [
-                { key: 'potion', name: 'Potion', weight: 35 },
-                { key: 'pokeball', name: 'Poké Ball', weight: 25 },
-                { key: 'super_potion', name: 'Super Potion', weight: 18 },
+                { key: 'potion', name: 'Potion', weight: 28 },
+                { key: 'pokeball', name: 'Poké Ball', weight: 24 },
+                { key: 'super_potion', name: 'Super Potion', weight: 16 },
                 { key: 'great_ball', name: 'Great Ball', weight: 12 },
-                { key: 'revive', name: 'Revive', weight: 7 },
-                { key: 'ultra_ball', name: 'Ultra Ball', weight: 3 }
+                { key: 'revive', name: 'Revive', weight: 8 },
+                { key: 'rare_candy', name: 'Rare Candy', weight: 8 },
+                { key: 'ultra_ball', name: 'Ultra Ball', weight: 4 }
             ];
 
             const totalWeight = itemPool.reduce((acc, i) => acc + i.weight, 0);
@@ -461,6 +493,26 @@ class GameApp {
         }
     }
 
+    // Modal e Lógica do Shop / Poké-Mart
+    openShopModal() {
+        ui.renderShop(this.money, SHOP_CATALOG, (item) => {
+            this.buyShopItem(item);
+        });
+    }
+
+    buyShopItem(item) {
+        if (this.money < item.price) {
+            alert(`Saldo insuficiente! Você tem ₽ ${this.money} e o item custa ₽ ${item.price}.`);
+            return;
+        }
+        this.money -= item.price;
+        this.itemBag[item.key] = (this.itemBag[item.key] || 0) + 1;
+        if (typeof audio !== 'undefined') audio.playCoin();
+        this.updateHeaderStats();
+        this.saveGame();
+        this.openShopModal();
+    }
+
     // Usar item da Mochila durante a batalha ou fora dela
     async useItem(key) {
         if (this.inTurn) return;
@@ -474,7 +526,7 @@ class GameApp {
 
         // --- USO EM BATALHA ---
         if (this.isBattleActive) {
-            // POKÉ BALLS (Tentar Capturar na Batalha)
+            // POKÉ BALLS (Com cálculo visível de taxa e animação dinâmica)
             if (key === 'pokeball' || key === 'great_ball' || key === 'ultra_ball') {
                 this.inTurn = true;
                 this.itemBag[key]--;
@@ -492,17 +544,19 @@ class GameApp {
                     ultra_ball: 2.0
                 };
 
-                await ui.showMessage(`Você arremessou uma ${ballNames[key]}!`);
-                if (typeof audio !== 'undefined') audio.playCatch();
-
                 const enemy = this.currentEnemy;
-                const hpRatio = (enemy.stats.hp - enemy.currentHp) / Math.max(1, enemy.stats.hp);
-                const baseCatchRate = 0.35 + (hpRatio * 0.45);
-                const finalChance = Math.min(0.95, baseCatchRate * (ballMultipliers[key] || 1));
+                const hpRatio = enemy.currentHp / Math.max(1, enemy.stats.hp);
+                // Taxa clássica: quanto menos HP, maior a taxa de captura
+                const baseCatchRate = Math.max(0.20, 0.20 + (1 - hpRatio) * 0.55);
+                const finalChance = Math.min(0.95, baseCatchRate * (ballMultipliers[key] || 1.0));
+                const percentDisplay = Math.round(finalChance * 100);
 
-                await new Promise(r => setTimeout(r, 600));
+                await ui.showMessage(`Você arremessou ${ballNames[key]}! [Taxa de Captura: ${percentDisplay}%]`);
 
                 const captured = Math.random() < finalChance;
+                // Animação visual da Pokébola arremessada e shakes
+                await ui.animatePokeballThrow(key, captured);
+
                 if (captured) {
                     await ui.showMessage(`Gotcha! ${enemy.name} foi capturado com sucesso!`);
                     this.isBattleActive = false;
@@ -523,6 +577,40 @@ class GameApp {
                     this.inTurn = false;
                     return;
                 }
+            }
+
+            // RARE CANDY EM BATALHA
+            if (key === 'rare_candy') {
+                if (activePkmn.level >= 100) {
+                    await ui.showMessage(`${activePkmn.name} já atingiu o nível máximo (100)!`);
+                    return;
+                }
+
+                this.inTurn = true;
+                this.itemBag[key]--;
+                const result = activePkmn.useRareCandy();
+                if (typeof audio !== 'undefined') audio.playLevelUp();
+                ui.updateBattleDisplay(activePkmn, this.currentEnemy);
+                this.updateHeaderStats();
+                this.saveGame();
+
+                await ui.showMessage(`Você usou Rare Candy! ${activePkmn.name} subiu para o Nível ${activePkmn.level}!`);
+                if (result.canEvolve) {
+                    await this.triggerEvolutionSequence(activePkmn);
+                }
+
+                // Consome turno: o inimigo ataca
+                const enemy = this.currentEnemy;
+                const enemyMove = this.chooseEnemyMove(enemy);
+                const knockedOut = await this.performAttack(enemy, activePkmn, enemyMove, false);
+                if (knockedOut) {
+                    await this.handleFaint(activePkmn, true);
+                } else {
+                    ui.updateBattleDisplay(activePkmn, enemy);
+                    await ui.showMessage(`O que ${activePkmn.name} deve fazer?`);
+                }
+                this.inTurn = false;
+                return;
             }
 
             // POÇÕES
@@ -632,6 +720,27 @@ class GameApp {
                 this.updateHeaderStats();
                 ui.updateBattleDisplay(this.getActivePokemon(), this.currentEnemy);
                 await ui.showMessage(`${fainted.name} reviveu com ${fainted.currentHp} HP!`);
+                return;
+            }
+
+            if (key === 'rare_candy') {
+                const target = this.getActivePokemon();
+                if (!target || target.level >= 100) {
+                    await ui.showMessage(`Seu Pokémon ativo já está no nível máximo!`);
+                    return;
+                }
+
+                this.itemBag['rare_candy']--;
+                const result = target.useRareCandy();
+                if (typeof audio !== 'undefined') audio.playLevelUp();
+                this.updateHeaderStats();
+                this.saveGame();
+                ui.updateBattleDisplay(this.getActivePokemon(), this.currentEnemy);
+                await ui.showMessage(`Você usou Rare Candy! ${target.name} subiu para o Nível ${target.level}!`);
+
+                if (result.canEvolve) {
+                    await this.triggerEvolutionSequence(target);
+                }
                 return;
             }
 
@@ -1353,11 +1462,13 @@ class GameApp {
         this.battlesWon = 0;
         this.activePokemonIndex = 0;
         this.centerUses = 0;
+        this.money = 500;
         this.itemBag = {
             potion: 3,
             super_potion: 1,
             hyper_potion: 0,
             revive: 1,
+            rare_candy: 1,
             pokeball: 5,
             great_ball: 2,
             ultra_ball: 0
@@ -1376,6 +1487,7 @@ class GameApp {
                 battlesWon: this.battlesWon,
                 activePokemonIndex: this.activePokemonIndex,
                 centerUses: this.centerUses,
+                money: this.money,
                 itemBag: this.itemBag,
                 playerTeam: this.playerTeam.map(p => p.toSerializable()),
                 playerPC: this.playerPC.map(p => p.toSerializable())
@@ -1397,12 +1509,14 @@ class GameApp {
             this.battlesWon = data.battlesWon || 0;
             this.activePokemonIndex = data.activePokemonIndex || 0;
             this.centerUses = data.centerUses || 0;
+            this.money = typeof data.money === 'number' ? data.money : 500;
 
             this.itemBag = Object.assign({
                 potion: 3,
                 super_potion: 1,
                 hyper_potion: 0,
                 revive: 1,
+                rare_candy: 1,
                 pokeball: 5,
                 great_ball: 2,
                 ultra_ball: 0

@@ -67,7 +67,8 @@ class UIManager {
             revive: { name: 'Revive', icon: '💎', desc: 'Revive um Pokémon desmaiado com 50% de HP.' },
             pokeball: { name: 'Poké Ball', icon: '🔴', desc: 'Arremessa em batalha para tentar capturar.' },
             great_ball: { name: 'Great Ball', icon: '🔵', desc: 'Bola aprimorada com 1.5x de chance de captura.' },
-            ultra_ball: { name: 'Ultra Ball', icon: '🟡', desc: 'Bola de alta performance com 2.0x de chance.' }
+            ultra_ball: { name: 'Ultra Ball', icon: '🟡', desc: 'Bola de alta performance com 2.0x de chance.' },
+            rare_candy: { name: 'Rare Candy', icon: '🍬', desc: 'Aumenta em 1 o Nível do Pokémon e pode evoluí-lo!' }
         };
 
         const currentBag = bag || {};
@@ -347,6 +348,141 @@ class UIManager {
         setTimeout(() => {
             if (floater.parentNode) floater.parentNode.removeChild(floater);
         }, 1200);
+    }
+
+    // Renderiza a Loja de Itens (Poké-Mart)
+    renderShop(money, catalog, onBuy) {
+        let modal = document.getElementById('modal-shop');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'modal-shop';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-card modal-shop">
+                    <div class="modal-header">
+                        <h2>🏪 POKÉ-MART - LOJA DE ITENS</h2>
+                        <button class="modal-close-btn">&times;</button>
+                    </div>
+                    <div class="shop-money-banner">
+                        <span>Seu Saldo:</span>
+                        <strong id="shop-player-money" class="money-text">₽ ${money}</strong>
+                    </div>
+                    <div class="shop-grid"></div>
+                </div>`;
+            document.body.appendChild(modal);
+
+            modal.querySelector('.modal-close-btn').addEventListener('click', () => {
+                if (typeof audio !== 'undefined') audio.playClick();
+                modal.classList.remove('active');
+            });
+        }
+
+        const moneyEl = modal.querySelector('#shop-player-money');
+        if (moneyEl) moneyEl.textContent = `₽ ${money}`;
+
+        const grid = modal.querySelector('.shop-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        catalog.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'shop-item-card';
+            const canAfford = money >= item.price;
+
+            card.innerHTML = `
+                <div class="item-icon">${item.icon}</div>
+                <div class="item-info">
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-desc">${item.desc}</span>
+                    <span class="shop-price-badge">₽ ${item.price}</span>
+                </div>
+                <button class="btn-buy-item ${canAfford ? '' : 'disabled'}" ${canAfford ? '' : 'disabled'} data-key="${item.key}">
+                    Comprar
+                </button>
+            `;
+
+            if (canAfford) {
+                const btnBuy = card.querySelector('.btn-buy-item');
+                btnBuy.addEventListener('click', () => {
+                    onBuy(item);
+                });
+            }
+
+            grid.appendChild(card);
+        });
+
+        modal.classList.add('active');
+    }
+
+    // Animação completa de arremesso, absorção e balanço da Pokébola
+    async animatePokeballThrow(ballType, isCaptured) {
+        return new Promise(async (resolve) => {
+            const enemySprite = document.getElementById('enemy-pokemon-sprite');
+            const arena = document.getElementById('battle-arena');
+            if (!enemySprite || !arena) {
+                resolve();
+                return;
+            }
+
+            const ballColors = {
+                pokeball: '#ee4949',
+                great_ball: '#2980b9',
+                ultra_ball: '#f39c12'
+            };
+            const topColor = ballColors[ballType] || '#ee4949';
+
+            const ball = document.createElement('div');
+            ball.className = 'pokeball-projectile';
+            ball.innerHTML = `
+                <div class="pb-half pb-top" style="background: ${topColor};"></div>
+                <div class="pb-center-line"></div>
+                <div class="pb-button"></div>
+                <div class="pb-half pb-bottom"></div>
+            `;
+            arena.appendChild(ball);
+
+            // 1. Voo em arco até o oponente
+            await new Promise(r => setTimeout(r, 450));
+
+            // 2. Luz vermelha de absorção
+            enemySprite.classList.add('anim-capture-absorb');
+            if (typeof audio !== 'undefined') audio.playTone(550, 0.25, 'sine', 0.2);
+
+            await new Promise(r => setTimeout(r, 450));
+            enemySprite.style.opacity = '0';
+            ball.classList.add('pb-landed');
+
+            // 3. Balanços da bola no chão
+            const shakes = isCaptured ? 3 : (Math.random() < 0.5 ? 2 : 1);
+            for (let i = 1; i <= shakes; i++) {
+                await new Promise(r => setTimeout(r, 550));
+                ball.classList.remove('pb-shake-left', 'pb-shake-right');
+                void ball.offsetWidth;
+                ball.classList.add(i % 2 === 1 ? 'pb-shake-left' : 'pb-shake-right');
+                if (typeof audio !== 'undefined') audio.playBallWobble();
+            }
+
+            await new Promise(r => setTimeout(r, 500));
+
+            if (isCaptured) {
+                ball.classList.add('pb-captured-stars');
+                if (typeof audio !== 'undefined') audio.playCatch();
+                await new Promise(r => setTimeout(r, 800));
+                ball.remove();
+                resolve();
+            } else {
+                if (typeof audio !== 'undefined') audio.playBallBreak();
+                ball.classList.add('pb-burst-open');
+                await new Promise(r => setTimeout(r, 200));
+                ball.remove();
+                enemySprite.style.opacity = '1';
+                enemySprite.classList.remove('anim-capture-absorb');
+                enemySprite.classList.add('anim-capture-escape');
+                await new Promise(r => setTimeout(r, 400));
+                enemySprite.classList.remove('anim-capture-escape');
+                resolve();
+            }
+        });
     }
 }
 

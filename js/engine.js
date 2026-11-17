@@ -145,6 +145,40 @@ class PokemonInstance {
         return result;
     }
 
+    // Uso de Rare Candy para subir 1 nível instantaneamente
+    useRareCandy() {
+        if (this.level >= 100) {
+            return { success: false, reason: 'max_level' };
+        }
+
+        const oldStats = { ...this.stats };
+        this.level++;
+        this.exp = this.getExpForLevel(this.level);
+        this.expToNext = this.getExpForLevel(this.level + 1);
+        this.recalculateStats();
+
+        const hpBonus = this.stats.hp - oldStats.hp;
+        if (this.currentHp > 0) {
+            this.currentHp = Math.min(this.stats.hp, this.currentHp + hpBonus);
+        }
+
+        let canEvolve = false;
+        let evolutionTarget = null;
+        if (this.evolution && this.level >= this.evolution.level) {
+            canEvolve = true;
+            evolutionTarget = this.evolution.to;
+        }
+
+        return {
+            success: true,
+            newLevel: this.level,
+            canEvolve,
+            evolutionTarget,
+            oldStats,
+            newStats: { ...this.stats }
+        };
+    }
+
     // Evoluir Pokémon
     evolve() {
         if (!this.evolution || !this.evolution.to) return false;

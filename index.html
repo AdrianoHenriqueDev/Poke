@@ -22,10 +22,12 @@
                 <div class="stat-pill"><span class="pill-label">VITÓRIAS:</span> <strong id="header-wins">0</strong></div>
                 <div class="stat-pill"><span class="pill-label">TIME:</span> <strong id="header-team-count">1/6</strong></div>
                 <div class="stat-pill"><span class="pill-label">NO PC:</span> <strong id="header-pc-count">0</strong></div>
+                <div class="stat-pill"><span class="pill-label">POKÉ-DÓLAR:</span> <strong id="header-money" style="color: #ffd738;">₽ 500</strong></div>
                 <div class="stat-pill"><span class="pill-label">CENTRO:</span> <strong id="header-center-uses">0/3</strong></div>
             </div>
             <nav class="header-nav">
                 <button id="btn-open-bag" class="nav-btn btn-bag" title="Abrir mochila de itens">🎒 Mochila</button>
+                <button id="btn-open-shop" class="nav-btn btn-shop" title="Abrir a Loja de Itens">🏪 Loja</button>
                 <button id="btn-open-team" class="nav-btn" title="Ver e gerenciar seu time de 6 Pokémons">👥 Time</button>
                 <button id="btn-open-pc" class="nav-btn" title="Acessar o PC para trocar ou retirar Pokémons guardados">💻 PC Box</button>
                 <button id="btn-heal-center" class="nav-btn btn-heal" title="Restaurar HP e PP de todo o time (Máx 3 usos)">❤️ Centro (<span id="center-btn-uses">0/3</span>)</button>
@@ -235,6 +237,21 @@
                 </div>
                 <p class="modal-subtitle">Selecione um item para utilizar:</p>
                 <div class="items-grid"></div>
+            </div>
+        </div>
+
+        <!-- MODAL DA LOJA (POKÉ-MART) -->
+        <div id="modal-shop" class="modal-overlay">
+            <div class="modal-card modal-shop">
+                <div class="modal-header">
+                    <h2>🏪 POKÉ-MART - LOJA DE ITENS</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div class="shop-money-banner">
+                    <span>Seu Saldo:</span>
+                    <strong id="shop-player-money" class="money-text">₽ 500</strong>
+                </div>
+                <div class="shop-grid"></div>
             </div>
         </div>
     </div>

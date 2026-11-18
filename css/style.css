@@ -57,18 +57,26 @@ body {
 #game-header {
     background: #151b24;
     border-bottom: 3px solid #2f3b4c;
-    padding: 10px 16px;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 10;
+}
+
+.header-top-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    z-index: 10;
+    width: 100%;
+    gap: 10px;
 }
 
 .header-brand {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 .pokeball-icon {
@@ -106,8 +114,10 @@ body {
 
 .header-badges {
     display: flex;
+    align-items: center;
     gap: 6px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .stat-pill {
@@ -137,8 +147,11 @@ body {
 
 .header-nav {
     display: flex;
-    gap: 5px;
-    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
 .nav-btn {
@@ -532,7 +545,6 @@ body {
 }
 
 .btn-run {
-    grid-column: span 2;
     background: #394250;
 }
 
@@ -1607,7 +1619,13 @@ body {
     }
 
     /* Barras horizontais com scroll touch suave */
+    .header-top-row {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
     .header-badges {
+        flex-wrap: nowrap;
         overflow-x: auto;
         padding-bottom: 2px;
         scrollbar-width: none;
@@ -1618,6 +1636,8 @@ body {
     }
 
     .header-nav {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
         overflow-x: auto;
         padding-bottom: 2px;
         scrollbar-width: none;

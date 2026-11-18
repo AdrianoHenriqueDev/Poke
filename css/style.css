@@ -1537,34 +1537,341 @@ body {
     100% { transform: translateY(60px); opacity: 0; }
 }
 
-/* RESPONSIVIDADE */
-@media (max-width: 800px) {
+/* ==========================================================================
+   RESPONSIVIDADE E ADAPTAÇÃO PARA DISPOSITIVOS MÓVEIS / TELAS MENORES
+   ========================================================================== */
+
+/* Telas médias e Tablets (<= 900px) */
+@media (max-width: 900px) {
+    #game-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+        border: none;
+    }
+
+    #game-header {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+
+    .header-brand h1 {
+        font-size: 10px;
+    }
+
+    .stat-pill {
+        padding: 3px 5px;
+        font-size: 11px;
+    }
+
+    .nav-btn {
+        padding: 4px 7px;
+        font-size: 11px;
+    }
+
+    #battle-arena {
+        padding: 16px 20px;
+    }
+
+    .pokemon-hud {
+        width: 220px;
+    }
+}
+
+/* Smartphones e Telas Compactas (<= 680px) */
+@media (max-width: 680px) {
+    body {
+        align-items: stretch;
+    }
+
+    #game-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+        border: none;
+    }
+
     #game-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        padding: 6px 8px;
+        gap: 6px;
     }
+
+    .header-brand h1 {
+        font-size: 10px;
+    }
+
+    /* Barras horizontais com scroll touch suave */
+    .header-badges {
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .header-badges::-webkit-scrollbar {
+        display: none;
+    }
+
+    .header-nav {
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .header-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .stat-pill {
+        padding: 2px 5px;
+        font-size: 10px;
+        border-radius: 4px;
+    }
+
+    .pill-label {
+        font-size: 9px;
+    }
+
+    .nav-btn {
+        padding: 4px 6px;
+        font-size: 10px;
+        border-radius: 4px;
+    }
+
+    /* Arena de Batalha em Celulares */
     #battle-arena {
-        padding: 10px;
+        padding: 8px 10px;
+        justify-content: space-around;
     }
+
+    #enemy-zone {
+        gap: 8px;
+    }
+
+    #player-zone {
+        gap: 8px;
+    }
+
+    .pokemon-stage {
+        width: 120px;
+        height: 95px;
+    }
+
+    .stage-shadow {
+        width: 100px;
+        height: 22px;
+    }
+
+    .pokemon-sprite {
+        max-height: 90px;
+        max-width: 100px;
+    }
+
+    .pokemon-sprite.sprite-back {
+        transform: scale(1.15);
+    }
+
     .pokemon-hud {
-        width: 190px;
-        padding: 6px;
+        width: 165px;
+        padding: 5px 8px;
+        border-radius: 8px;
     }
+
+    .pkmn-name {
+        font-size: 13px;
+    }
+
+    .pkmn-lvl {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+
+    .type-badge {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+
+    .hp-bar-container {
+        padding: 2px 4px;
+        gap: 4px;
+    }
+
+    .hp-bar-label {
+        font-size: 8px;
+    }
+
+    .hp-bar-track {
+        height: 8px;
+    }
+
+    .hp-numeric {
+        font-size: 10px;
+    }
+
+    /* Painel Inferior de Diálogo e Comandos */
     #battle-controls-container {
         flex-direction: column;
         height: auto;
+        min-height: 135px;
+        padding: 8px;
+        gap: 6px;
     }
+
+    #dialogue-box {
+        padding: 8px 12px;
+        min-height: 46px;
+        border-radius: 8px;
+    }
+
+    #battle-dialogue-text {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
     .controls-pad {
         width: 100%;
+        gap: 6px;
     }
-    .starters-selection-grid {
-        grid-template-columns: repeat(2, 1fr);
+
+    .btn-command {
+        padding: 8px 6px;
+        font-size: 10px;
+        gap: 4px;
+        border-radius: 6px;
     }
-    .team-grid {
+
+    .moves-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .move-btn {
+        padding: 6px;
+        font-size: 10px;
+    }
+
+    .move-btn .move-name {
+        font-size: 10px;
+    }
+
+    /* Modais Adaptativos em Celulares */
+    .modal-card {
+        width: 95vw !important;
+        max-height: 90vh;
+        padding: 12px;
+    }
+
+    .modal-header h2 {
+        font-size: 13px;
+    }
+
+    .modal-title {
+        font-size: 12px;
+    }
+
+    .modal-subtitle {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .reward-choices-grid {
         grid-template-columns: 1fr;
+        gap: 10px;
     }
+
+    .pc-team-slots {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
     .pc-box-slots {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 6px;
+    }
+
+    .pc-slot {
+        min-height: 85px;
+        padding: 4px;
+    }
+
+    .pc-slot img {
+        width: 38px;
+        height: 38px;
+    }
+
+    .pc-slot-name {
+        font-size: 11px;
+    }
+
+    .pc-slot-lvl {
+        font-size: 9px;
+    }
+
+    .starters-selection-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+    }
+
+    .items-grid, .shop-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        max-height: 360px;
+    }
+
+    .details-body {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .details-left, .details-right {
+        width: 100%;
+    }
+
+    .stats-table {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Pokébola animada no mobile */
+    .pokeball-projectile.pb-landed {
+        bottom: 170px;
+        right: 80px;
+    }
+}
+
+/* Telas Ultra Compactas (<= 380px) */
+@media (max-width: 380px) {
+    .pokemon-hud {
+        width: 145px;
+        padding: 4px 6px;
+    }
+
+    .pkmn-name {
+        font-size: 11px;
+    }
+
+    .pokemon-stage {
+        width: 95px;
+        height: 80px;
+    }
+
+    .pokemon-sprite {
+        max-height: 75px;
+        max-width: 85px;
+    }
+
+    .btn-command {
+        font-size: 9px;
+        padding: 6px 4px;
+    }
+
+    #battle-dialogue-text {
+        font-size: 10px;
     }
 }
 
